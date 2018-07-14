@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  <jmxConfigurator/>
+
+  <property name="APP_NAME" value="coin-manager"/>
+  <property name="ROOT_DIR" value="~/logs/${APP_NAME}" />
+  <property name="LOG_MAX_HISTORY" value="7"/>
+  <property name="FILE_LOG_PATTERN"
+            value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %5p %-40.40logger{50} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}"/>
+
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoder的默认实现类是ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="log_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+    <file>info.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${ROOT_DIR}/info-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+      <cleanHistoryOnStart>true</cleanHistoryOnStart>
+    </rollingPolicy>
+  </appender>
+
+  <appender name="log_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+    <file>error.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${ROOT_DIR}/error-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+      <cleanHistoryOnStart>true</cleanHistoryOnStart>
+    </rollingPolicy>
+  </appender>
+
+  <appender name="log_warn" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>WARN</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+    <file>warn.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${ROOT_DIR}/warn-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+      <cleanHistoryOnStart>true</cleanHistoryOnStart>
+    </rollingPolicy>
+  </appender>
+
+  <appender name="log_debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+    <file>debug.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${ROOT_DIR}/debug-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+      <cleanHistoryOnStart>true</cleanHistoryOnStart>
+    </rollingPolicy>
+  </appender>
+
+  <logger name="org.springframework.web" level="INFO" additivity="false">
+    <appender-ref ref="log_info"/>
+    <appender-ref ref="log_warn"/>
+    <appender-ref ref="log_error"/>
+    <appender-ref ref="console"/>
+  </logger>
+
+  <logger name="org.springframework" level="INFO" additivity="false">
+    <appender-ref ref="log_info"/>
+    <appender-ref ref="log_warn"/>
+    <appender-ref ref="log_error"/>
+    <appender-ref ref="console"/>
+  </logger>
+
+  <logger name="net.sealake" level="INFO" additivity="false">
+    <appender-ref ref="log_info"/>
+    <appender-ref ref="log_warn"/>
+    <appender-ref ref="log_error"/>
+    <appender-ref ref="console"/>
+  </logger>
+
+  <logger name="org.apache.http" level="INFO" additivity="false">
+    <appender-ref ref="log_info"/>
+    <appender-ref ref="log_warn"/>
+    <appender-ref ref="log_error"/>
+    <appender-ref ref="console"/>
+  </logger>
+
+  <logger name="swagger" level="ERROR" additivity="false">
+    <appender-ref ref="log_info"/>
+    <appender-ref ref="log_warn"/>
+    <appender-ref ref="log_error"/>
+    <appender-ref ref="console"/>
+  </logger>
+
+  <logger name="p6spy" level="INFO" additivity="false">
+    <appender-ref ref="log_info"/>
+    <appender-ref ref="log_warn"/>
+    <appender-ref ref="log_error"/>
+    <appender-ref ref="console"/>
+  </logger>
+
+  <root level="INFO">
+    <appender-ref ref="log_info"/>
+    <appender-ref ref="log_warn"/>
+    <appender-ref ref="log_error"/>
+    <appender-ref ref="console"/>
+  </root>
+</configuration>
