@@ -155,7 +155,6 @@
         <configuration>
           <excludes>
             <exclude>application*.yml</exclude>
-            <exclude>logback-spring*.xml</exclude>
           </excludes>
           <archive>
             <manifest>
@@ -185,7 +184,6 @@
                   <directory>${basedir}/src/main/resources</directory>
                   <includes>
                     <include>application*.yml</include>
-                    <include>logback-spring*.xml</include>
                   </includes>
                 </resource>
               </resources>

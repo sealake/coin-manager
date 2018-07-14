@@ -3,8 +3,8 @@
   <include resource="org/springframework/boot/logging/logback/base.xml"/>
   <jmxConfigurator/>
 
-  <property name="APP_NAME" value="coin-manager"/>
-  <property name="ROOT_DIR" value="~/logs/${APP_NAME}" />
+  <property name="app.name" value="coin-manager"/>
+  <property name="log.path" value="./" />
   <property name="LOG_MAX_HISTORY" value="7"/>
   <property name="FILE_LOG_PATTERN"
             value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %5p %-40.40logger{50} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}"/>
@@ -27,7 +27,7 @@
     </encoder>
     <file>info.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${ROOT_DIR}/info-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>${log.path}/info-%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
       <cleanHistoryOnStart>true</cleanHistoryOnStart>
     </rollingPolicy>
@@ -44,7 +44,7 @@
     </encoder>
     <file>error.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${ROOT_DIR}/error-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>${log.path}/error-%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
       <cleanHistoryOnStart>true</cleanHistoryOnStart>
     </rollingPolicy>
@@ -61,7 +61,7 @@
     </encoder>
     <file>warn.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${ROOT_DIR}/warn-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>${log.path}/warn-%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
       <cleanHistoryOnStart>true</cleanHistoryOnStart>
     </rollingPolicy>
@@ -78,7 +78,7 @@
     </encoder>
     <file>debug.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${ROOT_DIR}/debug-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>${log.path}/debug-%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
       <cleanHistoryOnStart>true</cleanHistoryOnStart>
     </rollingPolicy>

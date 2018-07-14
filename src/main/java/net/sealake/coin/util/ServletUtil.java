@@ -26,7 +26,6 @@ public class ServletUtil {
   /**
    * 写入或复写cookie值
    * @param request
-   * @return
    */
   public static void saveCookie(final HttpServletRequest request, final HttpServletResponse
       response, final String key, final String value) {
