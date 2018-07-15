@@ -7,7 +7,7 @@
   <property name="log.path" value="./" />
   <property name="LOG_MAX_HISTORY" value="7"/>
   <property name="FILE_LOG_PATTERN"
-            value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %5p %-40.40logger{50} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}"/>
+            value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %5p %logger{56}.%method %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}"/>
 
   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
     <!-- encoder的默认实现类是ch.qos.logback.classic.encoder.PatternLayoutEncoder -->

@@ -10,6 +10,7 @@ import net.sealake.coin.entity.GenericUser;
 import net.sealake.coin.entity.RoleAuthority;
 import net.sealake.coin.entity.enums.UserStatusEnum;
 import net.sealake.coin.exception.BadRequestException;
+import net.sealake.coin.exception.NotFoundException;
 import net.sealake.coin.repository.GenericUserRepository;
 import net.sealake.coin.repository.RoleAuthorityRepository;
 
@@ -91,6 +92,29 @@ public class GenericUserService implements UserDetailsService {
   public Page<GenericUser> listUsers(int page, int size, Sort.Direction sort) {
     Pageable pageable = new PageRequest(page, size, sort, "id");
     return userRepo.findAll(pageable);
+  }
+
+  /**
+   * 删除用户
+   */
+  @Transactional
+  public void deleteUser(final Long userId) {
+    userRepo.delete(userId);
+  }
+
+  /**
+   * 标记删除用户，将用户状态置为不可用
+   */
+  @Transactional
+  public GenericUser inactiveUser(final Long userId) {
+    GenericUser user = userRepo.findOne(userId);
+    if (null == user) {
+      log.error("failed get user, id {}", userId);
+      throw new NotFoundException(AppError.DOCUMENT_NOT_FOUND);
+    }
+
+    user.setUserStatus(UserStatusEnum.INACTIVE);
+    return userRepo.save(user);
   }
 
   public GenericUser findByUserId(final long id) {

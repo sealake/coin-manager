@@ -1,7 +1,6 @@
-/**
- * Alipay.com Inc. Copyright (c) 2004-2018 All Rights Reserved.
- */
 package net.sealake.coin.api.rest;
+
+import com.jcabi.aspects.Loggable;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -15,10 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- *
- * @author melody
- * @version $Id: LoginApi.java, v 0.1 2018年07月13日 下午10:39 melody Exp $
+ * 用户登录api
  */
+@Loggable
 @RestController
 @RequestMapping(ApiConstants.API_V1)
 public class LoginApi {

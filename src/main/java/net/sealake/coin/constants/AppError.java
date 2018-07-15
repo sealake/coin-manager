@@ -2,11 +2,12 @@ package net.sealake.coin.constants;
 
 public enum AppError {
 
-  AUTHORIZE_BAD_CREDENTIALS(4400, "user.name.or.password.error"), //
-  AUTHORIZE_USER_UNAUTHORIZED(4401, "user.unauthorized"), //
-  AUTHORIZE_TOKEN_INVALID(4402, "authorize.token.invalid"),         //
-  PERMISSION_DENIED(4403, "authorize.permission.denied"), //
-  DOCUMENT_NOT_FOUND(4004, "document.not.fountd"), //
+  AUTHORIZE_BAD_CREDENTIALS(4000, "user.name.or.password.error"), //
+  BAD_REQUEST_INPUT_PARAMETER_INVALID(4001, "input.parameter.invalid"),
+  AUTHORIZE_USER_UNAUTHORIZED(4010, "user.unauthorized"), //
+  AUTHORIZE_TOKEN_INVALID(4020, "authorize.token.invalid"),         //
+  PERMISSION_DENIED(4030, "authorize.permission.denied"), //
+  DOCUMENT_NOT_FOUND(4040, "document.not.fountd"), //
 
   OTHER_METHOD_ARGS_NOT_VALID(9000, ""), //
   OTHER_HTTP_MEDIATYPE_NOT_SUPPORT(9001, "other.contenttype.unsupport"), //
