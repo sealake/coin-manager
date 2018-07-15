@@ -4,7 +4,7 @@ package net.sealake.coin.entity.enums;
 /**
  * 交易所枚举
  */
-public enum BourceEnum {
+public enum BourseEnum {
   BINANCE,
   BITREX,
   CRYPTOPIA,

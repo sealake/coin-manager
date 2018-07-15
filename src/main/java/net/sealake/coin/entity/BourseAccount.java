@@ -1,10 +1,12 @@
 package net.sealake.coin.entity;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import net.sealake.coin.entity.enums.BourceEnum;
+import net.sealake.coin.entity.enums.BourseEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +36,14 @@ public class BourseAccount {
   @GeneratedValue
   private Long id;
 
-  @Column(length = 64)
+  @Column(length = 64, unique = true)
+  @ApiModelProperty(value = "渠道账户名称，不允许重复")
   private String name;
 
+  @Column(length = 64, unique = true)
   @Enumerated(value = EnumType.STRING)
-  private BourceEnum bourceEnum;
+  @ApiModelProperty(value = "渠道类型，同一渠道只允许一个交易所账号")
+  private BourseEnum bourseEnum;
 
   private String apiKey;
 

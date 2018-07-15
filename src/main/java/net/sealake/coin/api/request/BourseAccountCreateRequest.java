@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import net.sealake.coin.entity.enums.BourceEnum;
+import net.sealake.coin.entity.enums.BourseEnum;
 
 /**
  * 交易所账号创建请求
@@ -20,7 +20,7 @@ public class BourseAccountCreateRequest {
   private String name;
 
   @ApiModelProperty(value = "支持的交易所平台列表")
-  private BourceEnum bourceEnum;
+  private BourseEnum bourceEnum;
 
   private String apiKey;
 
