@@ -20,7 +20,7 @@ public class BourseAccountCreateRequest {
   private String name;
 
   @ApiModelProperty(value = "支持的交易所平台列表")
-  private BourseEnum bourceEnum;
+  private BourseEnum bourseEnum;
 
   private String apiKey;
 

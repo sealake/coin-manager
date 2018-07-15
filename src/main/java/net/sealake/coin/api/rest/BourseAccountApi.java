@@ -8,12 +8,14 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 import net.sealake.coin.api.request.BourseAccountCreateRequest;
+import net.sealake.coin.api.response.ConnectionTestResponse;
 import net.sealake.coin.constants.ApiConstants;
 import net.sealake.coin.constants.AppError;
 import net.sealake.coin.constants.Authorizes;
 import net.sealake.coin.entity.BourseAccount;
 import net.sealake.coin.exception.BadRequestException;
 import net.sealake.coin.service.BourseAccountService;
+import net.sealake.coin.service.integration.ExchangeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
+
 /**
  * 交易所账号管理api
  */
@@ -42,12 +46,27 @@ public class BourseAccountApi {
   @Autowired
   private BourseAccountService bourseAccountService;
 
+  @Autowired
+  private ExchangeService exchangeService;
+
   @PostMapping("/bourses")
   @PreAuthorize(Authorizes.ADMIN)
   @ApiOperation(value = "创建交易所账户")
   public ResponseEntity<BourseAccount> createBourseAccount(@RequestBody BourseAccountCreateRequest request) {
     BourseAccount bourseAccount = bourseAccountService.createBourseAccount(request);
     return new ResponseEntity<>(bourseAccount, HttpStatus.CREATED);
+  }
+
+  @GetMapping("/bourses/{id}/connecttest")
+  @PreAuthorize(Authorizes.ADMIN)
+  @ApiOperation(value = "测试交易所账户连通性", notes = "如果不能连通，说明ak sk设置有问题，如果返回500，则对应渠道的api尚未提供支持")
+  public ConnectionTestResponse testConnection(@PathVariable final Long id) {
+    if (id == null) {
+      log.error("交易所账户ID未提供!");
+      throw new BadRequestException(AppError.BAD_REQUEST_INPUT_PARAMETER_INVALID);
+    }
+
+    return exchangeService.testConnection(id);
   }
 
   @GetMapping("/bourses")

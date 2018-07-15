@@ -13,6 +13,7 @@ public enum AppError {
   OTHER_HTTP_MEDIATYPE_NOT_SUPPORT(9001, "other.contenttype.unsupport"), //
   OTHER_HTTP_MESSAGE_NOT_READABLE(9002, "other.message.not.readable"), //
   OTHER_HTTP_TYPE_MISMATCH(9003, "other.type.mismatch"), //
+  OTHER_CHANNEL_API_NOT_SUPPORT(9004, "other.channel.api.not.support"),
   OTHER_SERVER_INERNAL_EXCEPTION(9999, "other.server.internal.error") //
   ;
 
