@@ -9,6 +9,7 @@ import net.sealake.coin.service.integration.BaseApiClient;
 import net.sealake.coin.service.integration.BourseCoinConfigLoader;
 import net.sealake.coin.service.integration.entity.AccountInfo;
 import net.sealake.coin.service.integration.entity.AssetInfo;
+import net.sealake.coin.util.Json;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,7 +26,7 @@ import java.util.Map;
 public class SellTaskGenerateScheduler {
 
   // 暂定为10min
-  private static final long FIXED_DELAY = 20 * 1000L;
+  private static final long FIXED_DELAY = 10 * 60 * 1000L;
 
   @Autowired
   private ApiClientManager apiClientManager;
@@ -40,6 +41,8 @@ public class SellTaskGenerateScheduler {
   public void generateSellTask() {
     // 从数据库中取出所有交易所账户 && coin 账户配置
     bourseCoinConfigLoader.loadConfigs();
+
+    log.info("current config: {}", Json.dumps(bourseCoinConfigLoader.getBourseAccountMap()));
 
     // 遍历所有的交易所账户，生成sell 任务
     for (Map.Entry<String, BourseAccount> entry: bourseCoinConfigLoader.getBourseAccountMap().entrySet()) {

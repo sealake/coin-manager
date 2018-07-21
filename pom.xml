@@ -250,6 +250,15 @@
           </dependency>
         </dependencies>
       </plugin>
+      <!-- 禁用javadoc 插件 -->
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
     </plugins>
 
     <pluginManagement>

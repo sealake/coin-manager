@@ -29,7 +29,7 @@ public class SellTaskExecuteScheduler {
   @Autowired
   private SellTaskExecutor sellTaskExecutor;
 
-  // @Scheduled(fixedRate = FIXED_INTERVAL_MILLS)
+  @Scheduled(fixedRate = FIXED_INTERVAL_MILLS)
   public void loadAndExecuteSellTask() {
 
     List<CoinTask> tasks = coinTaskService.loadInitTask(CoinTaskType.SELL, LOAD_SIZE_PERSCHE);

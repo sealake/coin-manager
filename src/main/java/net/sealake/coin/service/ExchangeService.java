@@ -61,7 +61,7 @@ public class ExchangeService {
       return;
     }
 
-    // 获取coin账号
+    // 锁定coin账号
     CoinAccount coinAccount = coinAccountRepository.findByIdForUpdate(task.getCoinId());
     if (coinAccount == null) {
       log.warn("获取不到coin账户，coinId: {}", coinAccount.getId());
@@ -75,7 +75,6 @@ public class ExchangeService {
     coinOrder.setTaskId(task.getId());
 
     try {
-      // 锁定coinAccount账户，解锁预冻结金额
 
       // 获取当前coin的
       CoinPrice coinPrice = apiClient.getPrice(task.getSymbol());
@@ -88,40 +87,30 @@ public class ExchangeService {
 
       // 填充本地订单数据
       coinOrder.setPrice(new BigDecimal(coinPrice.getPrice()));
-      coinOrder.setExchangeStartTime(DateTime.now());
+      coinOrder.setExchangeTime(DateTime.now());
 
       // 发起卖出请求
       CoinOrderResponse orderResponse = apiClient.sell(orderRequest);
 
-      // 根据卖出结果补全coinTask和coinOrder字段
+      // 根据卖出结果补全coinTask和coinOrder字段并落库
       task.setTaskStatus(CoinTaskStatus.COMMIT);
       task.setBsnId(orderResponse.getClientOrderId());
+      coinTaskRepository.save(task);
+
       coinOrder.setTaskStatus(CoinTaskStatus.COMMIT);
       coinOrder.setBsnId(orderResponse.getClientOrderId());  // 交易所平台的账务流水号
+      coinOrderRepository.save(coinOrder);
+
+      // 解锁预冻结金额
+      BigDecimal preFreezeAmount = coinAccount.getPreFreezeAmount().subtract(task.getQuantity());
+      coinAccount.setPreFreezeAmount(preFreezeAmount);
+      coinAccountRepository.save(coinAccount);
 
     } catch (Exception ex) {
       log.error("coin交易失败，task {}, error {}", task, ex);
 
       // 设置task和coinOrder为失败状态
-      task.setTaskStatus(CoinTaskStatus.FAIL);
-
-      coinOrder.setTaskStatus(CoinTaskStatus.FAIL);
-      coinOrder.setExchangeFinishTime(DateTime.now());
-    }
-
-    // 解锁预冻结金额
-    BigDecimal preFreezeAmount = coinAccount.getPreFreezeAmount().subtract(task.getQuantity());
-    coinAccount.setPreFreezeAmount(preFreezeAmount);
-    coinAccountRepository.save(coinAccount);
-
-    // 更新到数据库
-    // order落库
-    coinOrderRepository.save(coinOrder);
-    // task如果是commit，则落库，如果fail，从表中删除
-    if (CoinTaskStatus.FAIL.equals(task.getTaskStatus())) {
       coinTaskRepository.delete(task.getId());
-    } else {
-      coinTaskRepository.save(task);
     }
   }
 
@@ -143,7 +132,7 @@ public class ExchangeService {
       BeanUtils.copyProperties(task, order);
       order.setId(null);
       order.setTaskId(task.getId());
-      order.setExchangeStartTime(DateTime.now());
+      order.setExchangeTime(DateTime.now());
       order = coinOrderRepository.save(order);
     }
 

@@ -43,10 +43,14 @@ public class BourseCoinConfigLoader {
   private synchronized void loadAllConfigs() {
     if (CollectionUtils.isEmpty(bourseAccountMap)) {
       bourseAccountMap = new HashMap<String, BourseAccount>();
+    } else {
+      bourseAccountMap.clear();
     }
 
     if (CollectionUtils.isEmpty(bourseCoinAccountMap)) {
       bourseCoinAccountMap = new HashMap<String, Map<String, CoinAccount>>();
+    } else {
+      bourseCoinAccountMap.clear();
     }
 
     final List<BourseAccount> bourseAccounts = bourseAccountRepository.findAll();

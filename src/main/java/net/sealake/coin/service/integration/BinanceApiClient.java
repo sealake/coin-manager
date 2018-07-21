@@ -90,8 +90,8 @@ public class BinanceApiClient implements BaseApiClient {
   @Override
   public CoinPrice getPrice(final String symbol) {
     TickerPrice price = client.getPrice(symbol);
-    BeanUtils.copyProperties(price, symbol);
     CoinPrice symbolPrice = new CoinPrice();
+    BeanUtils.copyProperties(price, symbolPrice);
 
     return symbolPrice;
   }

@@ -46,7 +46,7 @@ public class CoinAccount {
    */
   @Column(precision = 20, scale = 12)
   @ApiModelProperty(value = "当前预冻结的资金份额，即分批次尚未执行卖出的资金份额。正在执行中的为下单冻结，本地不记录")
-  private BigDecimal preFreezeAmount;
+  private BigDecimal preFreezeAmount = new BigDecimal("0");
 
   private String description;
 

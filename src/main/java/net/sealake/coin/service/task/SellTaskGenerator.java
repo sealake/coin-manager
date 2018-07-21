@@ -41,7 +41,7 @@ public class SellTaskGenerator {
     // 可用数量为目前可用数量 - 预冻结数量（分批次委托的数量, 在coin-manager侧逻辑锁定）
     BigDecimal availableQuantity = assetInfo.getAvailableAmount().subtract(coinAccount.getPreFreezeAmount());
     if (availableQuantity.compareTo(BigDecimal.ZERO) <= 0) {
-      log.warn("当前coin账户可用数量 <= 0，coinAccout: {}, assetInfo: {}, availableQuantity: {}",
+      log.info("当前coin账户可用数量 <= 0，coinAccout: {}, assetInfo: {}, availableQuantity: {}",
           coinAccount, assetInfo, availableQuantity);
       return;
     }

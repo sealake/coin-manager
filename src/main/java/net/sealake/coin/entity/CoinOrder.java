@@ -52,9 +52,8 @@ public class CoinOrder {
   @Column(length = 64)
   private String bsnId;
 
+  @Column(precision = 20, scale = 12)
   private BigDecimal price;
 
-  private DateTime exchangeStartTime;
-
-  private DateTime exchangeFinishTime;
+  private DateTime exchangeTime;
 }
