@@ -1,12 +1,13 @@
 package net.sealake.coin.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import net.sealake.coin.entity.enums.CoinTaskStatus;
 import net.sealake.coin.entity.enums.CoinTaskType;
 
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.math.BigDecimal;
 
@@ -15,14 +16,17 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class CoinOrder {
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
   private Long bourseId;

@@ -14,6 +14,6 @@ import javax.persistence.LockModeType;
 public interface CoinAccountRepository extends JpaRepository<CoinAccount, Long> {
 
   @Lock(value = LockModeType.PESSIMISTIC_WRITE)
-  @Query(value = "select c from CoinAccount t where t.id = :id")
+  @Query(value = "select t from CoinAccount t where t.id = :id")
   CoinAccount findByIdForUpdate(@Param("id") Long id);
 }
