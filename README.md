@@ -29,3 +29,9 @@ mvn clean package
 + 实现 BaseApiClient 接口
 + ExchangeService 中添加转发机制。
 
+## 其他
+
++ 如果要更新bourseAccount账户配置，切换ak、sk没问题，如果要换到新的账户，需要按照以下操作执行：
+  - 先将bourseAccount的账户状态置为不可用
+  - 待后台将该交易所订单都处理完毕
+  - 更新bourseAccount配置，切换到新的交易所账号，激活bourseAccount

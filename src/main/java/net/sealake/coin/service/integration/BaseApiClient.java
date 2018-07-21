@@ -1,5 +1,6 @@
 package net.sealake.coin.service.integration;
 
+import net.sealake.coin.service.integration.entity.AccountInfo;
 import net.sealake.coin.service.integration.entity.CoinOrderRequest;
 import net.sealake.coin.service.integration.entity.CoinOrderResponse;
 import net.sealake.coin.service.integration.entity.CoinPrice;
@@ -10,6 +11,11 @@ public interface BaseApiClient {
    * 测试连通性
    */
   Boolean testConnection();
+
+  /**
+   * 获取账户详情
+   */
+  AccountInfo getAccountInfo();
 
   /**
    * 获取当前行情

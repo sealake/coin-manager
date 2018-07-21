@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import net.sealake.coin.entity.enums.BourseEnum;
+import net.sealake.coin.entity.enums.UserStatusEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,4 +54,11 @@ public class BourseAccount {
 
   @OneToMany(mappedBy="bourseAccount", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
   private List<CoinAccount> coinAccounts = new ArrayList<>();
+
+  @Enumerated(value = EnumType.STRING)
+  private UserStatusEnum status;
+
+  public boolean isActive() {
+    return UserStatusEnum.isActive(this.status);
+  }
 }

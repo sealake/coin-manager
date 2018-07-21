@@ -6,17 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import net.sealake.coin.entity.BourseAccount;
 import net.sealake.coin.entity.CoinAccount;
 import net.sealake.coin.repository.BourseAccountRepository;
-import net.sealake.coin.util.Json;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
 
 /**
  * 定期自动从数据库获取最新的交易所 && coin配置
@@ -35,19 +32,23 @@ public class BourseCoinConfigLoader {
   /** 外层key: BourseEnum, 内层key: coin name */
   private Map<String, Map<String, CoinAccount>> bourseCoinAccountMap;
 
-  @PostConstruct
-  public void init() {
-    bourseAccountMap = new HashMap<String, BourseAccount>();
-    bourseCoinAccountMap = new HashMap<String, Map<String, CoinAccount>>();
-    loadAllConfigs();
-  }
-
-  @Scheduled(fixedRate = 5000)
   public void loadConfigs() {
     loadAllConfigs();
   }
 
-  private void loadAllConfigs() {
+  /**
+   * 从数据库中取出所有的交易所、coin配置
+   * 调用频率极低
+   */
+  private synchronized void loadAllConfigs() {
+    if (CollectionUtils.isEmpty(bourseAccountMap)) {
+      bourseAccountMap = new HashMap<String, BourseAccount>();
+    }
+
+    if (CollectionUtils.isEmpty(bourseCoinAccountMap)) {
+      bourseCoinAccountMap = new HashMap<String, Map<String, CoinAccount>>();
+    }
+
     final List<BourseAccount> bourseAccounts = bourseAccountRepository.findAll();
     for (BourseAccount bourseAccount : bourseAccounts) {
       // bourse account config map

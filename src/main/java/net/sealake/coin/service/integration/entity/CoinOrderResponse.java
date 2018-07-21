@@ -12,8 +12,6 @@ import net.sealake.coin.service.integration.entity.enums.CoinOrderStatusEnum;
 @AllArgsConstructor
 public class CoinOrderResponse {
 
-  private Boolean submit;
-
   private String symbol;
 
   private Long orderId;

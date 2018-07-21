@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import net.sealake.coin.util.Json;
+
 import java.math.BigDecimal;
 
 import javax.persistence.CascadeType;
@@ -63,5 +65,10 @@ public class CoinAccount {
   /** 货币卖出策略 */
   @OneToOne(mappedBy="coinAccount", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
   private CoinSellStrategy coinSellStrategy;
+
+  @Override
+  public String toString() {
+    return Json.dumps(this);
+  }
 }
 

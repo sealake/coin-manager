@@ -2,7 +2,6 @@ package net.sealake.coin.api.rest;
 
 import com.jcabi.aspects.Loggable;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,7 @@ import net.sealake.coin.constants.Authorizes;
 import net.sealake.coin.entity.BourseAccount;
 import net.sealake.coin.exception.BadRequestException;
 import net.sealake.coin.service.BourseAccountService;
-import net.sealake.coin.service.integration.ExchangeService;
+import net.sealake.coin.service.integration.ApiClientManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,8 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-
 /**
  * 交易所账号管理api
  */
@@ -47,7 +44,7 @@ public class BourseAccountApi {
   private BourseAccountService bourseAccountService;
 
   @Autowired
-  private ExchangeService exchangeService;
+  private ApiClientManager apiClientManager;
 
   @PostMapping("/bourses")
   @PreAuthorize(Authorizes.ADMIN)
@@ -66,7 +63,7 @@ public class BourseAccountApi {
       throw new BadRequestException(AppError.BAD_REQUEST_INPUT_PARAMETER_INVALID);
     }
 
-    return exchangeService.testConnection(id);
+    return apiClientManager.testConnection(id);
   }
 
   @GetMapping("/bourses")
