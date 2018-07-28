@@ -124,6 +124,7 @@ public class BinanceApiClient implements BaseApiClient {
     NewOrderResponse newOrderResponse = client.newOrder(order);
 
     // 转换结果
+    orderResponse.setSymbol(orderRequest.getSymbol());
     orderResponse.setPrice(newOrderResponse.getPrice());
     orderResponse.setQuantity(newOrderResponse.getOrigQty());
     orderResponse.setSide(CoinOrderSideEnum.SELL);
@@ -149,6 +150,7 @@ public class BinanceApiClient implements BaseApiClient {
 
     CoinOrderResponse orderResponse = new CoinOrderResponse();
     // 转换结果
+    orderResponse.setSymbol(order.getSymbol());
     orderResponse.setPrice(order.getPrice());
     orderResponse.setQuantity(order.getOrigQty());
     orderResponse.setSide(CoinOrderSideEnum.SELL);
@@ -164,7 +166,9 @@ public class BinanceApiClient implements BaseApiClient {
     if (StringUtils.isNotBlank(apiKey) && StringUtils.isNotBlank(secretKey)) {
 
       // 如果ak或者sk发生变更，需要重新创建 client 对象
-      if (!StringUtils.equals(apiKey, this.apiKey) || !StringUtils.equals(secretKey, this.secretKey)) {
+      if (!StringUtils.equals(apiKey, this.apiKey)
+          || !StringUtils.equals(secretKey, this.secretKey)
+          || client == null) {
 
         synchronized (this) {
           this.apiKey = apiKey;

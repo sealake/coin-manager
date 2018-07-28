@@ -56,7 +56,7 @@ public class CryptopiaClientImpl implements CryptopiaClient {
 
     try {
       Response response = request("GetBalance", params.toString());
-      assert response.body().string().length() >= 0;
+      assert response != null && response.isSuccessful();
     } catch (Exception ex) {
       throw new CryptopiaException("[ping](getbalance of btc in fact) failed", ex);
     }

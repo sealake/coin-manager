@@ -45,7 +45,7 @@ public class SellTaskGenerator {
         // XZCBTC
         return coinAccount.getName() + coinAccount.getSellDecision();
 
-      case BITREX:
+      case BITTREX:
         // BTC-XZC
         return coinAccount.getSellDecision() + ApiConstants.SEPERATOR_MINUS_SIGN + coinAccount.getName();
 

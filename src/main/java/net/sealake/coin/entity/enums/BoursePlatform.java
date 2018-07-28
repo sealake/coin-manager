@@ -6,7 +6,7 @@ package net.sealake.coin.entity.enums;
  */
 public enum BoursePlatform {
   BINANCE,
-  BITREX,
+  BITTREX,
   CRYPTOPIA,
   CRYPTO_BRIDGE
   ;

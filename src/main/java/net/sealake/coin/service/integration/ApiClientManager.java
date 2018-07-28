@@ -47,14 +47,29 @@ public class ApiClientManager {
    * 根据 bourseAccount 配置创建客户端
    */
   public BaseApiClient getApiClient(BourseAccount bourseAccount) {
-    switch (bourseAccount.getBourseEnum()) {
+    switch (bourseAccount.getPlatform()) {
       case BINANCE:
         BinanceApiClient binanceApiClient = new BinanceApiClient();
         binanceApiClient.reloadClient(bourseAccount.getApiKey(), bourseAccount.getSecretKey());
         if (binanceApiClient.testConnection()) {
           return binanceApiClient;
         }
+        return null;
 
+      case CRYPTOPIA:
+        CryptopiaApiClient cryptopiaApiClient = new CryptopiaApiClient();
+        cryptopiaApiClient.reloadClient(bourseAccount.getApiKey(), bourseAccount.getSecretKey());
+        if (cryptopiaApiClient.testConnection()) {
+          return cryptopiaApiClient;
+        }
+        return null;
+
+      case BITTREX:
+        BittrexApiClient bittrexApiClient = new BittrexApiClient();
+        bittrexApiClient.reloadClient(bourseAccount.getApiKey(), bourseAccount.getSecretKey());
+        if (bittrexApiClient.testConnection()) {
+          return bittrexApiClient;
+        }
         return null;
 
       default:

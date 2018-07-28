@@ -40,7 +40,9 @@ public class CryptopiaApiClient implements BaseApiClient {
     if (StringUtils.isNotBlank(apiKey) && StringUtils.isNotBlank(secretKey)) {
 
       // 如果ak或者sk发生变更，需要重新创建 client 对象
-      if (!StringUtils.equals(apiKey, this.apiKey) || !StringUtils.equals(secretKey, this.secretKey)) {
+      if (!StringUtils.equals(apiKey, this.apiKey)
+          || !StringUtils.equals(secretKey, this.secretKey)
+          || client == null) {
 
         synchronized (this) {
           this.apiKey = apiKey;
