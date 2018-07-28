@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import net.sealake.coin.entity.enums.BourseEnum;
+import net.sealake.coin.entity.enums.BoursePlatform;
 import net.sealake.coin.entity.enums.UserStatusEnum;
 
 import java.util.ArrayList;
@@ -43,8 +43,8 @@ public class BourseAccount {
 
   @Column(length = 64, unique = true)
   @Enumerated(value = EnumType.STRING)
-  @ApiModelProperty(value = "渠道类型，同一渠道只允许一个交易所账号")
-  private BourseEnum bourseEnum;
+  @ApiModelProperty(value = "交易所平台（渠道），同一渠道只允许一个交易所账号")
+  private BoursePlatform platform;
 
   private String apiKey;
 

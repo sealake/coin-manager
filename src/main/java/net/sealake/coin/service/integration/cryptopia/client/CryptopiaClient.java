@@ -1,5 +1,11 @@
 package net.sealake.coin.service.integration.cryptopia.client;
 
+import net.sealake.coin.service.integration.cryptopia.models.CryptopiaBalance;
+import net.sealake.coin.service.integration.cryptopia.models.CryptopiaMarket;
+import net.sealake.coin.service.integration.cryptopia.models.CryptopiaTrade;
+import net.sealake.coin.service.integration.cryptopia.models.CryptopiaTradeDetail;
+import net.sealake.coin.service.integration.cryptopia.models.request.CryptopiaTradeRequest;
+
 import java.util.List;
 
 public interface CryptopiaClient {
@@ -14,26 +20,26 @@ public interface CryptopiaClient {
    * @param symbol TradePairId or MarketName， 比如 100， XZC_BTC
    * @return market实例
    */
-  Market getMarket(final String symbol);
+  CryptopiaMarket getMarket(final String symbol);
 
   /**
    * 查询所有货币资产
    */
-  List<Balance> getAllBalances();
+  List<CryptopiaBalance> getAllBalances();
 
   /**
    * 查询指定货币资产信息
    *
    * @param currency 币种
    */
-  Balance getBalance(String currency);
+  CryptopiaBalance getBalance(String currency);
 
   /**
    * 发起交易
    * @param request 交易参数
    * @return Trade实例，包含交易的id等信息
    */
-  Trade submitTrade(TradeRequest request);
+  CryptopiaTrade submitTrade(CryptopiaTradeRequest request);
 
   /**
    * 获取交易历史
@@ -41,5 +47,5 @@ public interface CryptopiaClient {
    * @param count The maximum amount of history to return e.g. '10'
    * @return 历史交易详情的列表
    */
-  List<TradeDetail> getTradeHistory(String symbol, String count);
+  List<CryptopiaTradeDetail> getTradeHistory(String symbol, String count);
 }

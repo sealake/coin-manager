@@ -50,7 +50,7 @@ public class CoinAccount {
 
   private String description;
 
-  @ApiModelProperty(value = "卖出交易方向，如果支持与 USDT 交易，建议设置为 ${XXC}USDT，不支持的建议设置为${XXC}BTC")
+  @ApiModelProperty(value = "卖出交易方向，如果支持与 USDT 交易，建议设置为 USDT，不支持的建议设置为 BTC")
   private String sellDecision;
 
   @ApiModelProperty(value = "买入交易方向, 应该为sellDecison的反方向，暂时不用")

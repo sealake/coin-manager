@@ -2,6 +2,7 @@ package net.sealake.coin.service;
 
 import lombok.extern.slf4j.Slf4j;
 
+import net.sealake.coin.constants.ApiConstants;
 import net.sealake.coin.entity.BourseAccount;
 import net.sealake.coin.entity.CoinAccount;
 import net.sealake.coin.entity.CoinOrder;
@@ -18,13 +19,17 @@ import net.sealake.coin.service.integration.entity.CoinOrderResponse;
 import net.sealake.coin.service.integration.entity.CoinPrice;
 import net.sealake.coin.service.integration.entity.enums.CoinOrderStatusEnum;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 交易逻辑
@@ -50,7 +55,6 @@ public class ExchangeService {
 
   /**
    * 卖出操作
-   * @param task
    */
   @Transactional
   public void sell(CoinTask task) {
@@ -68,38 +72,31 @@ public class ExchangeService {
       return;
     }
 
-    // 构建 订单数据
-    CoinOrder coinOrder = new CoinOrder();
-    BeanUtils.copyProperties(task, coinOrder);
-    coinOrder.setId(null);   // id应自动生成
-    coinOrder.setTaskId(task.getId());
-
     try {
-
-      // 获取当前coin的
+      // 获取当前coin的行情信息
       CoinPrice coinPrice = apiClient.getPrice(task.getSymbol());
 
       // 构建远程订单请求
       CoinOrderRequest orderRequest = new CoinOrderRequest();
       orderRequest.setQuantity(task.getQuantity().toPlainString());
       orderRequest.setSymbol(task.getSymbol());
-      orderRequest.setPrice(coinPrice.getPrice());
-
-      // 填充本地订单数据
-      coinOrder.setPrice(new BigDecimal(coinPrice.getPrice()));
-      coinOrder.setExchangeTime(DateTime.now());
+      orderRequest.setPrice(coinPrice.getLastPrice());
 
       // 发起卖出请求
       CoinOrderResponse orderResponse = apiClient.sell(orderRequest);
 
-      // 根据卖出结果补全coinTask和coinOrder字段并落库
+      // 根据卖出结果补全coinTask字段并落库
       task.setTaskStatus(CoinTaskStatus.COMMIT);
-      task.setBsnId(orderResponse.getClientOrderId());
+      // bsnId 设置为orderId连接起来的字符串
+      String bsnIdStr = StringUtils.join(orderResponse.getOrderIds(), ApiConstants.SEPERATOR_UNDERLINE);
+      task.setBsnId(bsnIdStr);
       coinTaskRepository.save(task);
 
-      coinOrder.setTaskStatus(CoinTaskStatus.COMMIT);
-      coinOrder.setBsnId(orderResponse.getClientOrderId());  // 交易所平台的账务流水号
-      coinOrderRepository.save(coinOrder);
+      // 填充本地订单数据并落库，交易所可能会生成多笔交易，这种情况本地需要落多笔单据
+      for (String orderId : orderResponse.getOrderIds()) {
+        CoinOrder coinOrder = buildOrderFromTask(task, orderId, new BigDecimal(orderResponse.getPrice()));
+        coinOrderRepository.save(coinOrder);
+      }
 
       // 解锁预冻结金额
       BigDecimal preFreezeAmount = coinAccount.getPreFreezeAmount().subtract(task.getQuantity());
@@ -125,30 +122,62 @@ public class ExchangeService {
       return;
     }
 
-    CoinOrder order = coinOrderRepository.findByTaskId(task.getId());
-    if (order == null) {
-      log.warn("对应commit阶段的task没有订单数据，补插一条订单。task: {}", task);
-      order = new CoinOrder();
-      BeanUtils.copyProperties(task, order);
-      order.setId(null);
-      order.setTaskId(task.getId());
-      order.setExchangeTime(DateTime.now());
-      order = coinOrderRepository.save(order);
+    List<String> orderIds = Arrays.asList(StringUtils.split(task.getBsnId(), ApiConstants.SEPERATOR_UNDERLINE));
+    List<CoinOrder> orders = coinOrderRepository.findByTaskId(task.getId());
+
+    // 补充task表中存在但未落到订单表中的订单
+    List<String> lostOrderIds = filterLostOrders(orderIds, orders);
+    if (CollectionUtils.isEmpty(lostOrderIds)) {
+      for (String orderId : lostOrderIds) {
+        log.warn("对应commit阶段的task没有订单数据，补插本地订单。task: {}, lost order id: {}", task, orderId);
+        CoinOrder order = buildOrderFromTask(task, orderId, null);
+        order = coinOrderRepository.save(order);
+
+        if (orders == null) {
+          orders = new ArrayList<>();
+        }
+        orders.add(order);
+      }
     }
 
     try {
-      CoinOrderResponse response = apiClient.getOrderStatus(task.getSymbol(), task.getBsnId());
+      // 订单是否全部完成
+      boolean allFinished = true;
 
-      // 如果到达终态（成功、失败）,更新order表状态，删除task数据
-      if (CoinOrderStatusEnum.isSuccess(response.getStatus())) {
-        order.setPrice(new BigDecimal(response.getPrice()));
-        order.setTaskStatus(CoinTaskStatus.SUCCESS);
-        coinOrderRepository.save(order);
-        coinTaskRepository.delete(task.getId());
-      } else if (CoinOrderStatusEnum.isFail(response.getStatus())) {
-        order.setPrice(new BigDecimal(response.getPrice()));
-        order.setTaskStatus(CoinTaskStatus.FAIL);
-        coinOrderRepository.save(order);
+      // 遍历当前taskId对应的所有订单，从交易所更新订单状态
+      for (CoinOrder order : orders) {
+        // 如果当前订单已经到达终态，则跳过不再检查
+        if (CoinTaskStatus.isFinished(order.getTaskStatus())) {
+          continue;
+        }
+
+        // 从交易所获取订单状态
+        CoinOrderResponse response = apiClient.getOrderStatus(task.getSymbol(), order.getBsnId());
+        if (response == null) {
+          // 从交易所获取到的数据为空
+          allFinished = false;
+          continue;
+        }
+
+        // 如果到达终态（成功、失败）,更新order表状态，删除task数据
+        if (CoinOrderStatusEnum.isSuccess(response.getStatus())) {
+          order.setPrice(new BigDecimal(response.getPrice()));
+          order.setQuantity(new BigDecimal(response.getQuantity()));
+          order.setTaskStatus(CoinTaskStatus.SUCCESS);
+          coinOrderRepository.save(order);
+        } else if (CoinOrderStatusEnum.isFail(response.getStatus())) {
+          order.setPrice(new BigDecimal(response.getPrice()));
+          order.setQuantity(new BigDecimal(response.getQuantity()));
+          order.setTaskStatus(CoinTaskStatus.FAIL);
+          coinOrderRepository.save(order);
+        } else {
+          // 如果未达终态，则
+          allFinished = false;
+        }
+      }
+
+      // 如果该任务对应的所有订单都到达了终态，则删除task表数据
+      if (allFinished) {
         coinTaskRepository.delete(task.getId());
       }
     } catch (Exception ex) {
@@ -165,5 +194,59 @@ public class ExchangeService {
     }
 
     return apiClientManager.getApiClient(bourseAccount);
+  }
+
+  private CoinOrder buildOrderFromTask(CoinTask task, String orderId, BigDecimal price) {
+    CoinOrder coinOrder = new CoinOrder();
+
+    coinOrder.setBsnId(orderId);  // 交易所平台的账务流水号
+    coinOrder.setBourseId(task.getBourseId());
+    coinOrder.setCoinId(task.getCoinId());
+    coinOrder.setTaskId(task.getId());
+
+    coinOrder.setPlatform(task.getPlatform());
+    coinOrder.setSymbol(task.getSymbol());
+    coinOrder.setQuantity(BigDecimal.ZERO);  // 交易处理中，不确定每笔交易的数量
+    if (price != null) {
+      coinOrder.setPrice(price);
+    }
+
+    coinOrder.setTaskType(task.getTaskType());
+    coinOrder.setTaskStatus(CoinTaskStatus.COMMIT);
+    coinOrder.setExchangeTime(DateTime.now());
+
+    return coinOrder;
+  }
+
+  // 过滤task表中存在而本地订单表中不存在的订单号
+  private List<String> filterLostOrders(List<String> orderIds, List<CoinOrder> orders) {
+    List<String> filterdOrderIds = new ArrayList<>();
+    if (CollectionUtils.isEmpty(orderIds)) {
+      return filterdOrderIds;
+    }
+
+    if (CollectionUtils.isEmpty(orders)) {
+      filterdOrderIds.addAll(orderIds);
+      return filterdOrderIds;
+    }
+
+    // 如果task中的orderId在订单表中不存在，则放入filterdOrderIds列表中
+    boolean exists = false;
+    for (String orderId : orderIds) {
+      for (CoinOrder coinOrder : orders) {
+        if (StringUtils.equalsIgnoreCase(orderId.trim(), coinOrder.getBsnId().trim())) {
+          exists = true;
+          break;
+        }
+      }
+
+      if (exists) {
+        exists = false;
+      } else {
+        filterdOrderIds.add(orderId);
+      }
+    }
+
+    return filterdOrderIds;
   }
 }

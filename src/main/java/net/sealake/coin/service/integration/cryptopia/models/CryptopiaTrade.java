@@ -16,12 +16,12 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class Trade {
+public class CryptopiaTrade {
   private Long orderId;
   private List<Long> filledOrders;
 
-  public static Trade parse(String responseStr) {
-    final ApiResponse<Trade> response = new ApiResponse<>();
+  public static CryptopiaTrade parse(String responseStr) {
+    final CryptopiaResponse<CryptopiaTrade> response = new CryptopiaResponse<>();
 
     final JsonElement jElement = new JsonParser().parse(responseStr);
     final JsonObject rootObject = jElement.getAsJsonObject();
@@ -30,7 +30,7 @@ public class Trade {
     response.setMessage(rootObject.get("Error").toString());
     response.validate();
 
-    final Trade trade = new Trade();
+    final CryptopiaTrade trade = new CryptopiaTrade();
     final JsonObject data = rootObject.get("Data").getAsJsonObject();
 
     JsonElement orderIdElem = data.get("OrderId");

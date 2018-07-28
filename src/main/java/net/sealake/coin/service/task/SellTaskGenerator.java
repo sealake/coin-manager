@@ -3,6 +3,8 @@ package net.sealake.coin.service.task;
 
 import lombok.extern.slf4j.Slf4j;
 
+import net.sealake.coin.constants.ApiConstants;
+import net.sealake.coin.entity.BourseAccount;
 import net.sealake.coin.entity.CoinAccount;
 import net.sealake.coin.entity.CoinSellStrategy;
 import net.sealake.coin.entity.CoinTask;
@@ -10,6 +12,7 @@ import net.sealake.coin.entity.enums.CoinTaskStatus;
 import net.sealake.coin.entity.enums.CoinTaskType;
 import net.sealake.coin.repository.CoinAccountRepository;
 import net.sealake.coin.repository.CoinTaskRepository;
+import net.sealake.coin.service.integration.BourseCoinConfigLoader;
 import net.sealake.coin.service.integration.entity.AssetInfo;
 
 import org.joda.time.DateTime;
@@ -32,8 +35,31 @@ public class SellTaskGenerator {
   @Autowired
   private CoinTaskRepository taskRepository;
 
+  @Autowired
+  private BourseCoinConfigLoader bourseCoinConfigLoader;
+
+  private String getSymbol(BourseAccount bourseAccount, CoinAccount coinAccount) {
+    switch (bourseAccount.getPlatform()) {
+      case BINANCE:
+        // 以XZC卖出到BTC为例，下同。
+        // XZCBTC
+        return coinAccount.getName() + coinAccount.getSellDecision();
+
+      case BITREX:
+        // BTC-XZC
+        return coinAccount.getSellDecision() + ApiConstants.SEPERATOR_MINUS_SIGN + coinAccount.getName();
+
+      case CRYPTOPIA:
+        // XZC/BTC
+        return coinAccount.getName() + ApiConstants.SEPERATOR_SLASH + coinAccount.getName();
+
+      default:
+        return null;
+    }
+  }
+
   @Transactional
-  public void generatorTask(Long bourseAccountId, long coinAccountId, AssetInfo assetInfo) {
+  public void generatorTask(BourseAccount bourseAccount, long coinAccountId, AssetInfo assetInfo) {
 
     // 锁定当前账户
     CoinAccount coinAccount = coinAccountRepository.findByIdForUpdate(coinAccountId);
@@ -58,11 +84,11 @@ public class SellTaskGenerator {
     // 如果未设置strategy 或者 不拆分任务
     if (1 == splitSize) {
       CoinTask task = new CoinTask();
-      task.setBourseId(bourseAccountId);
+      task.setBourseId(bourseAccount.getId());
       task.setCoinId(coinAccount.getId());
       task.setQuantity(availableQuantity);
       task.setExecuteTime(DateTime.now());
-      task.setSymbol(coinAccount.getSellDecision());
+      task.setSymbol(this.getSymbol(bourseAccount, coinAccount));
       task.setTaskType(CoinTaskType.SELL);
       task.setTaskStatus(CoinTaskStatus.INIT);
 
@@ -76,7 +102,7 @@ public class SellTaskGenerator {
     // 按照strategy拆分交易
     for (int i = 0; i < splitSize; ++i) {
       CoinTask task = new CoinTask();
-      task.setBourseId(bourseAccountId);
+      task.setBourseId(bourseAccount.getId());
       task.setCoinId(coinAccount.getId());
       task.setSymbol(coinAccount.getSellDecision());
       task.setTaskType(CoinTaskType.SELL);

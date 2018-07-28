@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class Market {
+public class CryptopiaMarket {
   private Long tradePairId;
 
   private String label;
@@ -53,8 +53,8 @@ public class Market {
   /**
    * 解析查询指定市场行情信息的结果
    */
-  public static Market parse(String responseStr) {
-    final ApiResponse<Market> response = new ApiResponse<>();
+  public static CryptopiaMarket parse(String responseStr) {
+    final CryptopiaResponse<CryptopiaMarket> response = new CryptopiaResponse<>();
 
     final JsonElement jElement = new JsonParser().parse(responseStr);
     final JsonObject rootObject = jElement.getAsJsonObject();
@@ -70,9 +70,9 @@ public class Market {
   /**
    * 解析查询所有市场行情信息的结果
    */
-  public static List<Market> parseList(String jsonResponse) {
-    final ApiResponse<List<Market>> apiResponse = new ApiResponse<>();
-    final List<Market> markets = new ArrayList<>();
+  public static List<CryptopiaMarket> parseList(String jsonResponse) {
+    final CryptopiaResponse<List<CryptopiaMarket>> apiResponse = new CryptopiaResponse<>();
+    final List<CryptopiaMarket> markets = new ArrayList<>();
 
     final JsonElement jElement = new JsonParser().parse(jsonResponse);
     final JsonObject rootObject = jElement.getAsJsonObject();
@@ -85,14 +85,14 @@ public class Market {
     final JsonArray dataArray = rootObject.get("Data").getAsJsonArray();
     for (final JsonElement element : dataArray) {
       final JsonObject object = element.getAsJsonObject();
-      final Market result = parseMarketObject(object);
+      final CryptopiaMarket result = parseMarketObject(object);
       markets.add(result);
     }
     return markets;
   }
 
-  private static Market parseMarketObject(JsonObject object) {
-    final Market result = new Market();
+  private static CryptopiaMarket parseMarketObject(JsonObject object) {
+    final CryptopiaMarket result = new CryptopiaMarket();
     result.setTradePairId(object.get("TradePairId").getAsLong());
     result.setLabel(object.get("Label").toString());
     result.setAskPrice(object.get("AskPrice").getAsBigDecimal());

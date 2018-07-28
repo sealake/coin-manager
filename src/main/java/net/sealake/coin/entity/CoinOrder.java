@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import net.sealake.coin.entity.enums.BoursePlatform;
 import net.sealake.coin.entity.enums.CoinTaskStatus;
 import net.sealake.coin.entity.enums.CoinTaskType;
 
@@ -29,9 +30,19 @@ public class CoinOrder {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
+  // 账单流水号
+  @Column(length = 64)
+  private String bsnId;
+
   private Long bourseId;
 
   private Long coinId;
+
+  @Column(unique = true)
+  private Long taskId;
+
+  @Enumerated(value = EnumType.STRING)
+  private BoursePlatform platform;
 
   @Column(length = 32)
   private String symbol;
@@ -39,21 +50,14 @@ public class CoinOrder {
   @Column(precision = 20, scale = 12)
   private BigDecimal quantity;
 
-  @Enumerated(EnumType.STRING)
-  private CoinTaskStatus taskStatus;
+  @Column(precision = 20, scale = 12)
+  private BigDecimal price;
 
   @Enumerated(EnumType.STRING)
   private CoinTaskType taskType;
 
-  @Column(unique = true)
-  private Long taskId;
-
-  // 账单流水号
-  @Column(length = 64)
-  private String bsnId;
-
-  @Column(precision = 20, scale = 12)
-  private BigDecimal price;
+  @Enumerated(EnumType.STRING)
+  private CoinTaskStatus taskStatus;
 
   private DateTime exchangeTime;
 }

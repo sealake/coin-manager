@@ -12,6 +12,9 @@ public class CoinPrice {
   /** 例如 XZCBTC BTCXZC */
   private String symbol;
 
-  /** 汇率行情 */
-  private String price;
+  private String bidPrice;
+
+  private String askPrice;
+
+  private String lastPrice;
 }

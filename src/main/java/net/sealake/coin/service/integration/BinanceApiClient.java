@@ -23,7 +23,6 @@ import net.sealake.coin.service.integration.entity.enums.CoinOrderSideEnum;
 import net.sealake.coin.service.integration.entity.enums.CoinOrderStatusEnum;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 
@@ -35,6 +34,7 @@ public class BinanceApiClient implements BaseApiClient {
 
   private BinanceApiRestClient client = null;
 
+  @Override
   public void reloadClient(String apiKey, String secretKey) {
     createClient(apiKey, secretKey);
   }
@@ -60,7 +60,14 @@ public class BinanceApiClient implements BaseApiClient {
   @Override
   public AccountInfo getAccountInfo() {
     // get account from coin remote
-    Account account = client.getAccount();
+    Account account;
+
+    try {
+      account = client.getAccount();
+    } catch (Exception ex) {
+      log.error("binance getAccountInfo failed, apiKey: {}, error: {}", this.apiKey, ex);
+      return null;
+    }
 
     // convert to AccountInfo
     AccountInfo accountInfo = new AccountInfo();
@@ -90,8 +97,10 @@ public class BinanceApiClient implements BaseApiClient {
   public CoinPrice getPrice(final String symbol) {
     TickerPrice price = client.getPrice(symbol);
     CoinPrice symbolPrice = new CoinPrice();
-    BeanUtils.copyProperties(price, symbolPrice);
-
+    symbolPrice.setSymbol(price.getSymbol());
+    symbolPrice.setAskPrice(price.getPrice());
+    symbolPrice.setBidPrice(price.getPrice());
+    symbolPrice.setLastPrice(price.getPrice());
     return symbolPrice;
   }
 
@@ -116,12 +125,12 @@ public class BinanceApiClient implements BaseApiClient {
 
     // 转换结果
     orderResponse.setPrice(newOrderResponse.getPrice());
-    orderResponse.setOriginQuantity(newOrderResponse.getOrigQty());
-    orderResponse.setOrderId(newOrderResponse.getOrderId());
-    orderResponse.setClientOrderId(newOrderResponse.getClientOrderId());
+    orderResponse.setQuantity(newOrderResponse.getOrigQty());
     orderResponse.setSide(CoinOrderSideEnum.SELL);
     orderResponse.setStatus(CoinOrderStatusEnum.valueOf(newOrderResponse.getStatus().name()));
 
+    // binance平台的订单号是Long类型，在此转换成String类型
+    orderResponse.getOrderIds().add(String.valueOf(newOrderResponse.getOrderId()));
 
     return orderResponse;
   }
@@ -133,35 +142,18 @@ public class BinanceApiClient implements BaseApiClient {
   }
 
   @Override
-  public CoinOrderResponse getOrderStatus(final String symbol, final Long orderId) {
-    OrderStatusRequest request = new OrderStatusRequest(symbol, orderId);
+  public CoinOrderResponse getOrderStatus(final String symbol, final String orderId) {
+    // binance orderId是Long类型，所以这里需要做类型转换
+    OrderStatusRequest request = new OrderStatusRequest(symbol, Long.parseLong(orderId));
     Order order = client.getOrderStatus(request);
 
     CoinOrderResponse orderResponse = new CoinOrderResponse();
     // 转换结果
     orderResponse.setPrice(order.getPrice());
-    orderResponse.setOriginQuantity(order.getOrigQty());
-    orderResponse.setOrderId(order.getOrderId());
-    orderResponse.setClientOrderId(order.getClientOrderId());
+    orderResponse.setQuantity(order.getOrigQty());
     orderResponse.setSide(CoinOrderSideEnum.SELL);
     orderResponse.setStatus(CoinOrderStatusEnum.valueOf(order.getStatus().name()));
-
-    return orderResponse;
-  }
-
-  @Override
-  public CoinOrderResponse getOrderStatus(final String symbol, final String clientOrderId) {
-    OrderStatusRequest request = new OrderStatusRequest(symbol, clientOrderId);
-    Order order = client.getOrderStatus(request);
-
-    CoinOrderResponse orderResponse = new CoinOrderResponse();
-    // 转换结果
-    orderResponse.setPrice(order.getPrice());
-    orderResponse.setOriginQuantity(order.getOrigQty());
-    orderResponse.setOrderId(order.getOrderId());
-    orderResponse.setClientOrderId(order.getClientOrderId());
-    orderResponse.setSide(CoinOrderSideEnum.SELL);
-    orderResponse.setStatus(CoinOrderStatusEnum.valueOf(order.getStatus().name()));
+    orderResponse.getOrderIds().add(orderId);
 
     return orderResponse;
   }
@@ -169,7 +161,6 @@ public class BinanceApiClient implements BaseApiClient {
   private void createClient(String apiKey, String secretKey) {
 
     // 如果 bourseAccount 配置有更新，需要重新生成 client。
-    boolean configRefreshed = false;
     if (StringUtils.isNotBlank(apiKey) && StringUtils.isNotBlank(secretKey)) {
 
       // 如果ak或者sk发生变更，需要重新创建 client 对象

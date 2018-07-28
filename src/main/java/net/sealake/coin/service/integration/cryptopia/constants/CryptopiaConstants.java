@@ -1,6 +1,6 @@
 package net.sealake.coin.service.integration.cryptopia.constants;
 
-public class ApiConstants {
+public class CryptopiaConstants {
   //
   public static final String API_BASE_URL = "https://www.cryptopia.co.nz/api/";
 

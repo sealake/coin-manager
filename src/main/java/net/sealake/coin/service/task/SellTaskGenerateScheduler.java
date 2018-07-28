@@ -66,7 +66,7 @@ public class SellTaskGenerateScheduler {
 
       // 获取账户资产信息，判断账户资产是否足以交易
       AccountInfo accountInfo = apiClient.getAccountInfo();
-      if (!accountInfo.isCanTrade()) {
+      if (accountInfo == null || !accountInfo.isCanTrade()) {
         continue;
       }
 
@@ -79,7 +79,7 @@ public class SellTaskGenerateScheduler {
         CoinAccount coinAccount = coinAccountMap.get(assetInfo.getAssetName());
         if (coinAccount != null) {
           if (assetInfo.getAvailableAmount().compareTo(BigDecimal.ZERO) > 0) {
-            sellTaskGenerator.generatorTask(bourseAccount.getId(), coinAccount.getId(), assetInfo);
+            sellTaskGenerator.generatorTask(bourseAccount, coinAccount.getId(), assetInfo);
           } else if (assetInfo.getAvailableAmount().compareTo(BigDecimal.ZERO) < 0) {
             log.error("当前coin账户预冻结金额小于0，请核对历史订单! coinAccount: {}", coinAccount);
           }

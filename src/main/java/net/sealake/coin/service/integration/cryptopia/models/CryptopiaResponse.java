@@ -7,7 +7,7 @@ import net.sealake.coin.service.integration.cryptopia.client.CryptopiaException;
 
 @Data
 @NoArgsConstructor
-public class ApiResponse<T> {
+public class CryptopiaResponse<T> {
   private boolean success;
   private String message;
   private T data;

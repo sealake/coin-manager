@@ -2,6 +2,13 @@ package net.sealake.coin.service.integration.cryptopia.client;
 
 import com.google.gson.JsonObject;
 
+import net.sealake.coin.service.integration.cryptopia.constants.CryptopiaConstants;
+import net.sealake.coin.service.integration.cryptopia.models.CryptopiaBalance;
+import net.sealake.coin.service.integration.cryptopia.models.CryptopiaMarket;
+import net.sealake.coin.service.integration.cryptopia.models.CryptopiaTrade;
+import net.sealake.coin.service.integration.cryptopia.models.CryptopiaTradeDetail;
+import net.sealake.coin.service.integration.cryptopia.models.request.CryptopiaTradeRequest;
+
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
@@ -56,12 +63,12 @@ public class CryptopiaClientImpl implements CryptopiaClient {
   }
 
   @Override
-  public Market getMarket(final String symbol) {
+  public CryptopiaMarket getMarket(final String symbol) {
 
     try {
       final String action = String.format("GetMarket/%s", symbol);
       Response response = simpleRequest(action);
-      return Market.parse(response.body().string());
+      return CryptopiaMarket.parse(response.body().string());
     } catch (IOException ex) {
       throw new CryptopiaException("failed read response while getMarket.", ex);
     }
@@ -69,21 +76,21 @@ public class CryptopiaClientImpl implements CryptopiaClient {
   }
 
   @Override
-  public List<Balance> getAllBalances() {
+  public List<CryptopiaBalance> getAllBalances() {
     String currency = null;
     try {
       JsonObject params = new JsonObject();
       params.addProperty("Currency", currency);
 
       Response response = request("GetBalance", params.toString());
-      return Balance.parse(response.body().string());
+      return CryptopiaBalance.parse(response.body().string());
     } catch (IOException ex) {
       throw new CryptopiaException("failed read response while GetBalance.", ex);
     }
   }
 
   @Override
-  public Balance getBalance(String currency) {
+  public CryptopiaBalance getBalance(String currency) {
 
     try {
       JsonObject params = new JsonObject();
@@ -91,7 +98,7 @@ public class CryptopiaClientImpl implements CryptopiaClient {
 
       Response response = request("GetBalance", params.toString());
 
-      List<Balance> balances = Balance.parse(response.body().string());
+      List<CryptopiaBalance> balances = CryptopiaBalance.parse(response.body().string());
       if (CollectionUtils.isNotEmpty(balances)) {
         return balances.get(0);
       }
@@ -103,7 +110,7 @@ public class CryptopiaClientImpl implements CryptopiaClient {
   }
 
   @Override
-  public Trade submitTrade(TradeRequest request) {
+  public CryptopiaTrade submitTrade(CryptopiaTradeRequest request) {
 
     final String action = "SubmitTrade";
 
@@ -121,14 +128,14 @@ public class CryptopiaClientImpl implements CryptopiaClient {
 
     try {
       Response response = request(action, params.toString());
-      return Trade.parse(response.body().string());
+      return CryptopiaTrade.parse(response.body().string());
     } catch (IOException ex) {
       throw new CryptopiaException("[submitTrade] failed.", ex);
     }
   }
 
   @Override
-  public List<TradeDetail> getTradeHistory(String symbol, String count) {
+  public List<CryptopiaTradeDetail> getTradeHistory(String symbol, String count) {
     final String action = "GetTradeHistory";
     final JsonObject params = new JsonObject();
     params.addProperty("Market", symbol);
@@ -137,7 +144,7 @@ public class CryptopiaClientImpl implements CryptopiaClient {
     try {
       Response response = request(action, params.toString());
 
-      return TradeDetail.parse(response.body().string());
+      return CryptopiaTradeDetail.parse(response.body().string());
     } catch (IOException ex) {
       throw new CryptopiaException("[GetTradeHistory] failed", ex);
     }
@@ -150,12 +157,12 @@ public class CryptopiaClientImpl implements CryptopiaClient {
    */
   private Response request(String action, String paramStr) throws IOException {
 
-    final String uri = String.format("%s%s", ApiConstants.API_BASE_URL, action);
+    final String uri = String.format("%s%s", CryptopiaConstants.API_BASE_URL, action);
 
     Request request = new Request.Builder()
         .headers(buildHeaders(uri, paramStr))
         .url(uri)
-        .post(RequestBody.create(MediaType.parse(ApiConstants.CONTENT_TYPE_APPLICATION_JSON), paramStr))
+        .post(RequestBody.create(MediaType.parse(CryptopiaConstants.CONTENT_TYPE_APPLICATION_JSON), paramStr))
         .build();
 
     return httpClient.newCall(request).execute();
@@ -167,7 +174,7 @@ public class CryptopiaClientImpl implements CryptopiaClient {
    */
   private Response simpleRequest(final String action) throws IOException {
 
-    final String uri = String.format("%s%s", ApiConstants.API_BASE_URL, action);
+    final String uri = String.format("%s%s", CryptopiaConstants.API_BASE_URL, action);
     Request request = new Request.Builder()
         // .addHeader(ApiConstants.HEADER_CONTENT_TYPE, ApiConstants.CONTENT_TYPE_APPLICATION_JSON)
         .url(uri)
@@ -180,7 +187,7 @@ public class CryptopiaClientImpl implements CryptopiaClient {
 
     Headers headers = new Headers.Builder()
         // .add(ApiConstants.HEADER_CONTENT_TYPE, ApiConstants.CONTENT_TYPE_APPLICATION_JSON)
-        .add(ApiConstants.HEADER_AUTHORIZATION, getAuthString(uri, paramStr))
+        .add(CryptopiaConstants.HEADER_AUTHORIZATION, getAuthString(uri, paramStr))
         .build();
 
     return headers;
@@ -198,7 +205,7 @@ public class CryptopiaClientImpl implements CryptopiaClient {
           .append(getMd5B64String(postParam));
 
       final StringBuilder auth = new StringBuilder();
-      auth.append(ApiConstants.AUTHENTICATION_SCHEMA)
+      auth.append(CryptopiaConstants.AUTHENTICATION_SCHEMA)
           .append(this.apiKey)
           .append(":")
           .append(getHmacSha256B64String(requestSignature.toString()))
@@ -219,8 +226,8 @@ public class CryptopiaClientImpl implements CryptopiaClient {
   private String getMd5B64String(String postParameter)
       throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
-    MessageDigest md5Digest = MessageDigest.getInstance(ApiConstants.HASH_ALGORITHM_MD5);
-    byte[] digestBytes = md5Digest.digest(postParameter.getBytes(ApiConstants.UTF_8));
+    MessageDigest md5Digest = MessageDigest.getInstance(CryptopiaConstants.HASH_ALGORITHM_MD5);
+    byte[] digestBytes = md5Digest.digest(postParameter.getBytes(CryptopiaConstants.UTF_8));
     return Base64.getEncoder().encodeToString(digestBytes);
   }
 
@@ -229,9 +236,9 @@ public class CryptopiaClientImpl implements CryptopiaClient {
 
     Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
     SecretKeySpec secretSpec = new SecretKeySpec(
-        Base64.getDecoder().decode(this.secretKey), ApiConstants.SIGN_ALGORITHM_HMAC_SHA256);
+        Base64.getDecoder().decode(this.secretKey), CryptopiaConstants.SIGN_ALGORITHM_HMAC_SHA256);
 
     hmacSHA256.init(secretSpec);
-    return Base64.getEncoder().encodeToString(hmacSHA256.doFinal(msg.getBytes(ApiConstants.UTF_8)));
+    return Base64.getEncoder().encodeToString(hmacSHA256.doFinal(msg.getBytes(CryptopiaConstants.UTF_8)));
   }
 }

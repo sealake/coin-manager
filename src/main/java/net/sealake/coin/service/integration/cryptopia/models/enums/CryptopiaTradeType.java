@@ -3,19 +3,19 @@ package net.sealake.coin.service.integration.cryptopia.models.enums;
 import lombok.Getter;
 
 @Getter
-public enum TradeType {
+public enum CryptopiaTradeType {
 
   BUY("Buy"),
   SELL("Sell");
 
   private final String label;
 
-  private TradeType(String label) {
+  private CryptopiaTradeType(String label) {
     this.label = label;
   }
 
-  public static TradeType byLabel(String label) {
-    for (TradeType st : values()) {
+  public static CryptopiaTradeType byLabel(String label) {
+    for (CryptopiaTradeType st : values()) {
       if (st.label.equals(label)) {
         return st;
       }

@@ -8,6 +8,11 @@ import net.sealake.coin.service.integration.entity.CoinPrice;
 public interface BaseApiClient {
 
   /**
+   * 根据传入的apiKey 和 secretKey 更新client实例。
+   */
+  void reloadClient(String apikey, String secretKey);
+
+  /**
    * 测试连通性
    */
   Boolean testConnection();
@@ -35,7 +40,5 @@ public interface BaseApiClient {
   /**
    * 查看交易状态
    */
-  CoinOrderResponse getOrderStatus(final String symbol, final Long orderId);
-
   CoinOrderResponse getOrderStatus(final String symbol, final String orderId);
 }

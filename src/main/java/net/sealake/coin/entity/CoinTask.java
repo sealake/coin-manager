@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import net.sealake.coin.entity.enums.BoursePlatform;
 import net.sealake.coin.entity.enums.CoinTaskStatus;
 import net.sealake.coin.entity.enums.CoinTaskType;
 import net.sealake.coin.util.Json;
@@ -30,6 +31,8 @@ public class CoinTask {
   private Long id;
 
   private Long bourseId;
+
+  private BoursePlatform platform;
 
   private Long coinId;
 

@@ -3,13 +3,13 @@ package net.sealake.coin.service.integration.cryptopia.models.request;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import net.sealake.coin.service.integration.cryptopia.models.enums.TradeType;
+import net.sealake.coin.service.integration.cryptopia.models.enums.CryptopiaTradeType;
 
 import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
-public class TradeRequest {
+public class CryptopiaTradeRequest {
   /**
    * The market symbol of the trade e.g. 'DOT/BTC' (not required if 'TradePairId' supplied).
    */
@@ -23,7 +23,7 @@ public class TradeRequest {
   /**
    *  The type of trade e.g. 'Buy' or 'Sell'.
    */
-  private TradeType type;
+  private CryptopiaTradeType type;
 
   /**
    * The rate or price to pay for the coins, e.g. 0.00000034.

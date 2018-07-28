@@ -14,7 +14,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class Balance {
+public class CryptopiaBalance {
   private Long currencyId;
 
   private String symbol;
@@ -40,11 +40,11 @@ public class Balance {
   /**
    * 从json字符串中解析balance列表
    */
-  public static List<Balance> parse(String responseString) {
+  public static List<CryptopiaBalance> parse(String responseString) {
 
-    final ApiResponse<List<Balance>> response = new ApiResponse<>();
+    final CryptopiaResponse<List<CryptopiaBalance>> response = new CryptopiaResponse<>();
 
-    final List<Balance> balances = new ArrayList<>();
+    final List<CryptopiaBalance> balances = new ArrayList<>();
     response.setData(balances);
 
     final JsonElement jElement = new JsonParser().parse(responseString);
@@ -59,7 +59,7 @@ public class Balance {
     for (final JsonElement element : jsonArray) {
       final JsonObject object = element.getAsJsonObject();
 
-      final Balance balance = new Balance();
+      final CryptopiaBalance balance = new CryptopiaBalance();
       balance.setCurrencyId(object.get("CurrencyId").getAsLong());
       balance.setSymbol(object.get("Symbol").toString());
       balance.setTotal(object.get("Total").getAsBigDecimal());

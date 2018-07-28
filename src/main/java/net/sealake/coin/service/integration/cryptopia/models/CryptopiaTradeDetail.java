@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class TradeDetail {
+public class CryptopiaTradeDetail {
 
   private Long tradeId;
 
@@ -39,8 +39,8 @@ public class TradeDetail {
 
   private DateTime time;
 
-  public static List<TradeDetail> parse(String responseString) {
-    final ApiResponse<List<TradeDetail>> apiResponse = new ApiResponse<>();
+  public static List<CryptopiaTradeDetail> parse(String responseString) {
+    final CryptopiaResponse<List<CryptopiaTradeDetail>> apiResponse = new CryptopiaResponse<>();
 
     final JsonElement jElement = new JsonParser().parse(responseString);
     final JsonObject rootObject = jElement.getAsJsonObject();
@@ -50,11 +50,11 @@ public class TradeDetail {
     apiResponse.validate();
 
     // 解析列表中的对象
-    final List<TradeDetail> results = new ArrayList<>();
+    final List<CryptopiaTradeDetail> results = new ArrayList<>();
     final JsonArray jsonArray = rootObject.get("Data").getAsJsonArray();
     for (final JsonElement element : jsonArray) {
       final JsonObject object = element.getAsJsonObject();
-      final TradeDetail item = new TradeDetail();
+      final CryptopiaTradeDetail item = new CryptopiaTradeDetail();
       item.setTradeId(object.get("TradeId").getAsLong());
       item.setTradePairId(object.get("TradePairId").getAsLong());
       item.setMarket(object.get("Market").toString());
