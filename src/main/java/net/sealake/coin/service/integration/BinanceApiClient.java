@@ -21,7 +21,6 @@ import net.sealake.coin.service.integration.entity.CoinOrderResponse;
 import net.sealake.coin.service.integration.entity.CoinPrice;
 import net.sealake.coin.service.integration.entity.enums.CoinOrderSideEnum;
 import net.sealake.coin.service.integration.entity.enums.CoinOrderStatusEnum;
-import net.sealake.coin.util.Json;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -50,7 +49,7 @@ public class BinanceApiClient implements BaseApiClient {
     try {
       client.ping();
     } catch (Exception ex) {
-      log.error("failed ping binance api server, apiKey: {}, secretKey: {}, exception: {}",
+      log.error("failed ping coin api server, apiKey: {}, secretKey: {}, exception: {}",
           apiKey, secretKey, ex);
       return false;
     }
@@ -60,7 +59,7 @@ public class BinanceApiClient implements BaseApiClient {
 
   @Override
   public AccountInfo getAccountInfo() {
-    // get account from binance remote
+    // get account from coin remote
     Account account = client.getAccount();
 
     // convert to AccountInfo
