@@ -65,11 +65,12 @@ public class ApiClientManager {
         return null;
 
       case BITTREX:
-        BittrexApiClient bittrexApiClient = new BittrexApiClient();
-        bittrexApiClient.reloadClient(bourseAccount.getApiKey(), bourseAccount.getSecretKey());
-        if (bittrexApiClient.testConnection()) {
-          return bittrexApiClient;
-        }
+        // FIXME: bittrex 数额精度问题，暂不可用
+        // BittrexApiClient bittrexApiClient = new BittrexApiClient();
+        // bittrexApiClient.reloadClient(bourseAccount.getApiKey(), bourseAccount.getSecretKey());
+        // if (bittrexApiClient.testConnection()) {
+        //   return bittrexApiClient;
+        // }
         return null;
 
       default:

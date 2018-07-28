@@ -7,6 +7,7 @@ import net.sealake.coin.entity.BourseAccount;
 import net.sealake.coin.entity.CoinAccount;
 import net.sealake.coin.entity.CoinOrder;
 import net.sealake.coin.entity.CoinTask;
+import net.sealake.coin.entity.enums.BoursePlatform;
 import net.sealake.coin.entity.enums.CoinTaskStatus;
 import net.sealake.coin.repository.BourseAccountRepository;
 import net.sealake.coin.repository.CoinAccountRepository;
@@ -59,9 +60,15 @@ public class ExchangeService {
   @Transactional
   public void sell(CoinTask task) {
     // 获取交易所client对象
-    BaseApiClient apiClient = this.getApiClient(task);
-    if (apiClient == null) {
-      log.warn("交易所api client配置有问题，任务不执行, task: {}", task);
+    BaseApiClient apiClient = null;
+    try {
+      apiClient = this.getApiClient(task);
+      if (apiClient == null) {
+        log.warn("交易所api client配置有问题，任务不执行, task: {}", task);
+        return;
+      }
+    } catch (Exception ex) {
+      log.error("获取交易所对象失败，error: {}", ex);
       return;
     }
 
@@ -71,11 +78,10 @@ public class ExchangeService {
       log.warn("获取不到coin账户，coinId: {}", coinAccount.getId());
       return;
     }
+    // 获取当前coin的行情信息
+    CoinPrice coinPrice = apiClient.getPrice(task.getSymbol());
 
     try {
-      // 获取当前coin的行情信息
-      CoinPrice coinPrice = apiClient.getPrice(task.getSymbol());
-
       // 构建远程订单请求
       CoinOrderRequest orderRequest = new CoinOrderRequest();
       orderRequest.setQuantity(task.getQuantity().toPlainString());
@@ -106,8 +112,13 @@ public class ExchangeService {
     } catch (Exception ex) {
       log.error("coin交易失败，task {}, error {}", task, ex);
 
-      // 设置task和coinOrder为失败状态
+      // 捕获到异常，删除coin_task表对应数据
       coinTaskRepository.delete(task.getId());
+
+      // 解锁预冻结金额
+      BigDecimal preFreezeAmount = coinAccount.getPreFreezeAmount().subtract(task.getQuantity());
+      coinAccount.setPreFreezeAmount(preFreezeAmount);
+      coinAccountRepository.save(coinAccount);
     }
   }
 
@@ -116,6 +127,13 @@ public class ExchangeService {
    */
   @Transactional
   public void updateSellOrderStatus(CoinTask task) {
+
+    // cryptopia渠道未提供订单查询接口，直接清除该平台commit状态的task数据。
+    if (task.getPlatform().equals(BoursePlatform.CRYPTOPIA)) {
+      coinTaskRepository.delete(task.getId());
+      return;
+    }
+
     BaseApiClient apiClient = getApiClient(task);
     if (apiClient == null) {
       log.warn("交易所api client配置有问题，任务不执行, task: {}", task);
@@ -206,7 +224,7 @@ public class ExchangeService {
 
     coinOrder.setPlatform(task.getPlatform());
     coinOrder.setSymbol(task.getSymbol());
-    coinOrder.setQuantity(BigDecimal.ZERO);  // 交易处理中，不确定每笔交易的数量
+    coinOrder.setQuantity(task.getQuantity());
     if (price != null) {
       coinOrder.setPrice(price);
     }

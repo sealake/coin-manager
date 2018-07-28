@@ -33,28 +33,27 @@ public class BittrexApiClient implements BaseApiClient {
   private BittrexExchange client = null;
 
   @Override
-  public void reloadClient(String apikey, String secretKey) {
+  public void reloadClient(String akey, String skey) {
 
     // 如果 bourseAccount 配置有更新，需要重新生成 client。
-    if (StringUtils.isNotBlank(apiKey) && StringUtils.isNotBlank(secretKey)) {
+    if (StringUtils.isNotBlank(akey) && StringUtils.isNotBlank(skey)) {
 
       // 如果ak或者sk发生变更，需要重新创建 client 对象
-      if (!StringUtils.equals(apiKey, this.apiKey)
-          || !StringUtils.equals(secretKey, this.secretKey)
+      if (!StringUtils.equals(akey, this.apiKey)
+          || !StringUtils.equals(skey, this.secretKey)
           || client == null) {
 
         synchronized (this) {
-          this.apiKey = apiKey;
-          this.secretKey = secretKey;
+          this.apiKey = akey;
+          this.secretKey = skey;
           try {
-            client = new BittrexExchange(apiKey, secretKey);
+            client = new BittrexExchange(this.apiKey, this.secretKey);
           } catch (IOException ex) {
             log.error("failed create bittrex client, error: {}", ex);
           }
         }
       }
     }
-
   }
 
   @Override
@@ -91,7 +90,7 @@ public class BittrexApiClient implements BaseApiClient {
           AssetInfo assetInfo = new AssetInfo();
           assetInfo.setAssetName(balance.getCurrency());
           assetInfo.setAvailableAmount(new BigDecimal(balance.getAvailable()));
-          assetInfo.setFreezeAmount(new BigDecimal(balance.getPending()));
+          assetInfo.setFreezeAmount(new BigDecimal(balance.getBalance()).subtract(new BigDecimal(balance.getAvailable())));
 
           assets.add(assetInfo);
         }
@@ -99,6 +98,7 @@ public class BittrexApiClient implements BaseApiClient {
         if (CollectionUtils.isNotEmpty(assets)) {
           accountInfo.setCanTrade(true);
         }
+        return accountInfo;
       }
     } catch (Exception ex) {
       log.error("bittrex getAccountInfo failed, error: {}", ex);
@@ -175,6 +175,9 @@ public class BittrexApiClient implements BaseApiClient {
     }
 
     final Order apiResult = apiResponse.getResult();
+    if (apiResponse.getResult() == null) {
+      return null;
+    }
     final CoinOrderResponse orderResponse = new CoinOrderResponse();
     orderResponse.setSymbol(apiResult.getExchange());
     orderResponse.setPrice(String.valueOf(apiResult.getLimit()));

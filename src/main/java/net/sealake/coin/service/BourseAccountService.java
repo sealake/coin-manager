@@ -2,9 +2,12 @@ package net.sealake.coin.service;
 
 import lombok.extern.slf4j.Slf4j;
 
+import net.sealake.binance.api.client.BinanceApiError;
 import net.sealake.coin.api.request.BourseAccountCreateRequest;
+import net.sealake.coin.constants.ApiConstants;
 import net.sealake.coin.constants.AppError;
 import net.sealake.coin.entity.BourseAccount;
+import net.sealake.coin.entity.enums.UserStatusEnum;
 import net.sealake.coin.exception.NotFoundException;
 import net.sealake.coin.repository.BourseAccountRepository;
 
@@ -60,5 +63,19 @@ public class BourseAccountService {
    */
   public void deleteBourseAccount(final Long accountId) {
     bourseAccountRepository.delete(accountId);
+  }
+
+  public BourseAccount updateBourseAccountStatus(final Long id, final UserStatusEnum status) {
+    BourseAccount bourseAccount = bourseAccountRepository.findOne(id);
+    if (bourseAccount == null) {
+      throw new NotFoundException(AppError.DOCUMENT_NOT_FOUND);
+    }
+
+    if (bourseAccount.getStatus() == null || !bourseAccount.getStatus().equals(status)) {
+      bourseAccount.setStatus(status);
+      bourseAccount = bourseAccountRepository.save(bourseAccount);
+    }
+
+    return bourseAccount;
   }
 }

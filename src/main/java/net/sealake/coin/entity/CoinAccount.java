@@ -35,7 +35,7 @@ public class CoinAccount {
   @GeneratedValue
   private Long id;
 
-  @ApiModelProperty(value = "coin名称，如XZC BTC等")
+  @ApiModelProperty(value = "coin名称，如XZC ")
   private String name;
 
   @ApiModelProperty(value = "coin地址")

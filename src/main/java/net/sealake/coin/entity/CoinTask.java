@@ -32,6 +32,7 @@ public class CoinTask {
 
   private Long bourseId;
 
+  @Enumerated(EnumType.STRING)
   private BoursePlatform platform;
 
   private Long coinId;

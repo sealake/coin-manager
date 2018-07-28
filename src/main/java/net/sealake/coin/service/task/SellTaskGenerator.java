@@ -51,7 +51,7 @@ public class SellTaskGenerator {
 
       case CRYPTOPIA:
         // XZC/BTC
-        return coinAccount.getName() + ApiConstants.SEPERATOR_SLASH + coinAccount.getName();
+        return coinAccount.getName() + ApiConstants.SEPERATOR_SLASH + coinAccount.getSellDecision();
 
       default:
         return null;
@@ -86,6 +86,7 @@ public class SellTaskGenerator {
       CoinTask task = new CoinTask();
       task.setBourseId(bourseAccount.getId());
       task.setCoinId(coinAccount.getId());
+      task.setPlatform(bourseAccount.getPlatform());
       task.setQuantity(availableQuantity);
       task.setExecuteTime(DateTime.now());
       task.setSymbol(this.getSymbol(bourseAccount, coinAccount));
@@ -104,7 +105,8 @@ public class SellTaskGenerator {
       CoinTask task = new CoinTask();
       task.setBourseId(bourseAccount.getId());
       task.setCoinId(coinAccount.getId());
-      task.setSymbol(coinAccount.getSellDecision());
+      task.setPlatform(bourseAccount.getPlatform());
+      task.setSymbol(this.getSymbol(bourseAccount, coinAccount));
       task.setTaskType(CoinTaskType.SELL);
       task.setTaskStatus(CoinTaskStatus.INIT);
 

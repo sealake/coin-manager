@@ -34,20 +34,20 @@ public class CryptopiaApiClient implements BaseApiClient {
   private CryptopiaClient client = null;
 
   @Override
-  public void reloadClient(String apiKey, String secretKey) {
+  public void reloadClient(String aKey, String sKey) {
 
     // 如果 bourseAccount 配置有更新，需要重新生成 client。
-    if (StringUtils.isNotBlank(apiKey) && StringUtils.isNotBlank(secretKey)) {
+    if (StringUtils.isNotBlank(aKey) && StringUtils.isNotBlank(sKey)) {
 
       // 如果ak或者sk发生变更，需要重新创建 client 对象
-      if (!StringUtils.equals(apiKey, this.apiKey)
-          || !StringUtils.equals(secretKey, this.secretKey)
+      if (!StringUtils.equals(aKey, this.apiKey)
+          || !StringUtils.equals(sKey, this.secretKey)
           || client == null) {
 
         synchronized (this) {
-          this.apiKey = apiKey;
-          this.secretKey = secretKey;
-          client = new CryptopiaClientImpl(apiKey, secretKey);
+          this.apiKey = aKey;
+          this.secretKey = sKey;
+          client = new CryptopiaClientImpl(aKey, sKey);
         }
       }
     }
@@ -85,7 +85,7 @@ public class CryptopiaApiClient implements BaseApiClient {
         // 过滤掉份额为0的货币资产
         if (balance.getTotal().compareTo(BigDecimal.ZERO) > 0) {
           AssetInfo assetInfo = new AssetInfo();
-          assetInfo.setAssetName(balance.getSymbol());
+          assetInfo.setAssetName(StringUtils.strip(balance.getSymbol(), "\""));
           assetInfo.setAvailableAmount(balance.getAvailable());
           assetInfo.setFreezeAmount(balance.getTotal().subtract(balance.getAvailable()));
 
@@ -140,12 +140,7 @@ public class CryptopiaApiClient implements BaseApiClient {
     response.setPrice(orderRequest.getPrice());
     response.setStatus(CoinOrderStatusEnum.NEW);
     response.setSymbol(orderRequest.getSymbol());
-
-    // filledOrders 数组处理，在cryptopia进行交易时，后台可能会做拆单
-    // cryptopia的订单号是Long类型，由于其他平台有String类型的订单号，在此统一转换成String
-    for (Long orderId : trade.getFilledOrders()) {
-      response.getOrderIds().add(String.valueOf(orderId));
-    }
+    response.getOrderIds().add(String.valueOf(trade.getOrderId()));
 
     return response;
   }

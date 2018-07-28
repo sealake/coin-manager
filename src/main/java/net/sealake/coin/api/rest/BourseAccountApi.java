@@ -12,6 +12,7 @@ import net.sealake.coin.constants.ApiConstants;
 import net.sealake.coin.constants.AppError;
 import net.sealake.coin.constants.Authorizes;
 import net.sealake.coin.entity.BourseAccount;
+import net.sealake.coin.entity.enums.UserStatusEnum;
 import net.sealake.coin.exception.BadRequestException;
 import net.sealake.coin.service.BourseAccountService;
 import net.sealake.coin.service.integration.ApiClientManager;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -102,5 +104,18 @@ public class BourseAccountApi {
 
     bourseAccountService.deleteBourseAccount(id);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @PutMapping("/bourse/{id}/status/{status}")
+  @PreAuthorize(Authorizes.ADMIN)
+  @ApiOperation(value = "更新用户状态（激活、非激活）")
+  public BourseAccount updateUserStatus(@PathVariable("id") final Long id,
+      @PathVariable("status") final String status) {
+    UserStatusEnum statusEnum = UserStatusEnum.getByCode(status);
+    if (status == null) {
+      throw new BadRequestException(AppError.BAD_REQUEST_INPUT_PARAMETER_INVALID);
+    }
+
+    return bourseAccountService.updateBourseAccountStatus(id, statusEnum);
   }
 }

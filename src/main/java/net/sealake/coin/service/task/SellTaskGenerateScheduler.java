@@ -26,7 +26,8 @@ import java.util.Map;
 public class SellTaskGenerateScheduler {
 
   // 暂定为10min
-  private static final long FIXED_DELAY = 10 * 60 * 1000L;
+  // private static final long FIXED_DELAY = 10 * 60 * 1000L;
+  private static final long FIXED_DELAY = 10 * 1000L;
 
   @Autowired
   private ApiClientManager apiClientManager;

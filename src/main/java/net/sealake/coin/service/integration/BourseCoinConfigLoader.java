@@ -26,10 +26,10 @@ public class BourseCoinConfigLoader {
   @Autowired
   private BourseAccountRepository bourseAccountRepository;
 
-  /** key: BourseEnum */
+  /** key: BoursePlatform */
   private Map<String, BourseAccount> bourseAccountMap;
 
-  /** 外层key: BourseEnum, 内层key: coin name */
+  /** 外层key: BoursePlatform, 内层key: coin name */
   private Map<String, Map<String, CoinAccount>> bourseCoinAccountMap;
 
   public void loadConfigs() {
@@ -56,7 +56,7 @@ public class BourseCoinConfigLoader {
     final List<BourseAccount> bourseAccounts = bourseAccountRepository.findAll();
     for (BourseAccount bourseAccount : bourseAccounts) {
       // bourse account config map
-      String bourseName = bourseAccount.getBourseEnum().name();
+      String bourseName = bourseAccount.getPlatform().name();
       bourseAccountMap.put(bourseName, bourseAccount);
 
       // bourse and coin accont config map
@@ -64,7 +64,7 @@ public class BourseCoinConfigLoader {
       for (CoinAccount coinAccount: bourseAccount.getCoinAccounts()) {
         coinAccountMap.put(coinAccount.getName(), coinAccount);
       }
-      bourseCoinAccountMap.put(bourseAccount.getBourseEnum().name(), coinAccountMap);
+      bourseCoinAccountMap.put(bourseAccount.getPlatform().name(), coinAccountMap);
     }
   }
 }

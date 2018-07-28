@@ -160,20 +160,20 @@ public class BinanceApiClient implements BaseApiClient {
     return orderResponse;
   }
 
-  private void createClient(String apiKey, String secretKey) {
+  private void createClient(String aKey, String sKey) {
 
     // 如果 bourseAccount 配置有更新，需要重新生成 client。
-    if (StringUtils.isNotBlank(apiKey) && StringUtils.isNotBlank(secretKey)) {
+    if (StringUtils.isNotBlank(aKey) && StringUtils.isNotBlank(sKey)) {
 
       // 如果ak或者sk发生变更，需要重新创建 client 对象
-      if (!StringUtils.equals(apiKey, this.apiKey)
-          || !StringUtils.equals(secretKey, this.secretKey)
+      if (!StringUtils.equals(aKey, this.apiKey)
+          || !StringUtils.equals(sKey, this.secretKey)
           || client == null) {
 
         synchronized (this) {
-          this.apiKey = apiKey;
-          this.secretKey = secretKey;
-          client = new BinanceApiRestClientImpl(apiKey, secretKey);
+          this.apiKey = aKey;
+          this.secretKey = sKey;
+          client = new BinanceApiRestClientImpl(aKey, sKey);
         }
       }
     }
