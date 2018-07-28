@@ -2,6 +2,7 @@ package net.sealake.coin.service.integration;
 
 import lombok.extern.slf4j.Slf4j;
 
+import net.sealake.coin.constants.ApiConstants;
 import net.sealake.coin.service.integration.cryptopia.client.CryptopiaClient;
 import net.sealake.coin.service.integration.cryptopia.client.CryptopiaClientImpl;
 import net.sealake.coin.service.integration.cryptopia.models.CryptopiaBalance;
@@ -102,10 +103,11 @@ public class CryptopiaApiClient implements BaseApiClient {
     return null;
   }
 
-  /* symbol 例如， XZC卖出到BTC的symbol为: XZC-BTC */
+  /* symbol 例如， XZC卖出到BTC的symbol为: XZC_BTC */
   @Override
   public CoinPrice getPrice(String symbol) {
-    CryptopiaMarket market = client.getMarket(symbol);
+    final String marketSymbol = symbol.replace(ApiConstants.SEPERATOR_SLASH, ApiConstants.SEPERATOR_UNDERLINE);
+    CryptopiaMarket market = client.getMarket(marketSymbol);
 
     final CoinPrice price = new CoinPrice();
     price.setSymbol(symbol);

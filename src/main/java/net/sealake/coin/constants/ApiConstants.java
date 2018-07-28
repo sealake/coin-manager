@@ -16,6 +16,8 @@ public class ApiConstants {
   public static final String BEARER_TOKEN_PREFIX = "Bearer ";
   public static final String KEY_TOKEN = "token";
 
+  // 字符串连接 分隔符
+  public static final String SEPERATOR_DOUBLE_UNDERLINE = "__";
   public static final String SEPERATOR_UNDERLINE = "_";
   public static final String SEPERATOR_MINUS_SIGN = "-";
   public static final String SEPERATOR_SLASH = "/";

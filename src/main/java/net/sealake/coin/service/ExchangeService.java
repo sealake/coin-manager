@@ -88,7 +88,7 @@ public class ExchangeService {
       // 根据卖出结果补全coinTask字段并落库
       task.setTaskStatus(CoinTaskStatus.COMMIT);
       // bsnId 设置为orderId连接起来的字符串
-      String bsnIdStr = StringUtils.join(orderResponse.getOrderIds(), ApiConstants.SEPERATOR_UNDERLINE);
+      String bsnIdStr = StringUtils.join(orderResponse.getOrderIds(), ApiConstants.SEPERATOR_DOUBLE_UNDERLINE);
       task.setBsnId(bsnIdStr);
       coinTaskRepository.save(task);
 
@@ -122,7 +122,7 @@ public class ExchangeService {
       return;
     }
 
-    List<String> orderIds = Arrays.asList(StringUtils.split(task.getBsnId(), ApiConstants.SEPERATOR_UNDERLINE));
+    List<String> orderIds = Arrays.asList(StringUtils.split(task.getBsnId(), ApiConstants.SEPERATOR_DOUBLE_UNDERLINE));
     List<CoinOrder> orders = coinOrderRepository.findByTaskId(task.getId());
 
     // 补充task表中存在但未落到订单表中的订单
