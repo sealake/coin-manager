@@ -9,7 +9,12 @@
 mvn clean package
 ```
 
-将项目根目录下的`run.sh`和 target/ 目录下的 `application.yml` `coin-manager-1.0.0-SNAPSHOT.jar`拷贝到同一目录。所有配置信息都在`application.yml` 文件中，**需要事先创建好mysql数据库，并将连接字符串、用户名、密码等信息配置到该配置文件中。**
+将项目根目录下的`run.sh`和 target/ 目录下的 `application.yml` `coin-manager-1.0.0-SNAPSHOT.jar`拷贝到同一目录。所有配置信息都在`application.yml` 
+文件中， **需要事先创建好mysql数据库，并将连接字符串、用户名、密码等信息配置到该配置文件中。**创建database的sql语句如下:
+
+```sql 
+create database mysql default charset utf8;
+```
 
 配置完成后，执行：
 
@@ -27,7 +32,7 @@ mvn clean package
 一期只实现了对 binance api的支持，后续若要添加其他接口的支持，需要：
 
 + 实现 BaseApiClient 接口
-+ ExchangeService 中添加转发机制。
++ ApiClentManager 中添加转发机制。
 
 ## 其他
 
@@ -35,3 +40,4 @@ mvn clean package
   - 先将bourseAccount的账户状态置为不可用
   - 待后台将该交易所订单都处理完毕
   - 更新bourseAccount配置，切换到新的交易所账号，激活bourseAccount
+ 
