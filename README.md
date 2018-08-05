@@ -3,6 +3,7 @@
 环境要求：
 + jdk1.8
 + maven3
++ mysql(version>=5.5)
 
 构建
 ```bash
