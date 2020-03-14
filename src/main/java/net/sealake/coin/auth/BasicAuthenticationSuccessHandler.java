@@ -10,6 +10,7 @@ import net.sealake.coin.entity.GenericUser;
 import net.sealake.coin.service.TokenService;
 import net.sealake.coin.util.ServletUtil;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,7 +61,7 @@ public class BasicAuthenticationSuccessHandler implements AuthenticationSuccessH
     //如果请求中已经有了，则进行更新
     if (cookies != null) {
       for (Cookie c : cookies) {
-        if (c.getName().equals("token")) {
+        if (StringUtils.equals(c.getName(), "token")) {
           c.setValue(token);
           response.addCookie(c);
           addCookieFlag = true;

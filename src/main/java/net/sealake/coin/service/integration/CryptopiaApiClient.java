@@ -161,7 +161,7 @@ public class CryptopiaApiClient implements BaseApiClient {
     // cryptopia的orderId是Long类型，在此做类型转换
     Long originOrderId = Long.parseLong(orderId);
     for (CryptopiaTradeDetail tradeDetail: tradeDetails) {
-      if (tradeDetail.getTradeId() == originOrderId) {
+      if (tradeDetail.getTradeId().equals(originOrderId)) {
         final CoinOrderResponse response = new CoinOrderResponse();
 
         response.setSymbol(symbol);
